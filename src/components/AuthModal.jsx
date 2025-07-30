@@ -109,7 +109,7 @@ const AuthModal = ({ show, onClose, onAuthSuccess }) => {
         `}
       </style>
 
-      <div className="fixed inset-0 flex justify-center items-center z-40">
+      <div className="fixed inset-0 flex justify-center items-center z-40 p-4">
         <div className="absolute inset-0">
           <img
             src="/login.webp"
@@ -118,11 +118,10 @@ const AuthModal = ({ show, onClose, onAuthSuccess }) => {
           />
           <div className="absolute inset-0 bg-black/70 backdrop-blur-sm"></div>
         </div>
-
-        <div className="fixed inset-20 rounded-lg shadow-2xl overflow-hidden border border-gray-200/20">
+        <div className="relative w-full max-w-md aspect-square rounded-lg shadow-2xl overflow-hidden border border-gray-200/20">
           <div className="absolute inset-0">
             <video
-              src="/loginc.mp4"
+              // src="/loginc.mp4"
               autoPlay
               loop
               muted
@@ -131,57 +130,58 @@ const AuthModal = ({ show, onClose, onAuthSuccess }) => {
             />
             <div className="absolute inset-0 bg-black/60"></div>
           </div>
-
-          <div className="relative z-10 p-28 text-center">
-            <h3 className="text-2xl font-bold mb-6 text-white">
-              {isLoginView ? 'Login' : 'Create an Account'}
-            </h3>
-            <form onSubmit={handleAuth} className="grid grid-cols-1 gap-4">
-              {!isLoginView && (
+          <div className="relative z-10 p-12 text-center flex flex-col justify-center h-full">
+            <div>
+                <h3 className="text-2xl font-bold mb-6 text-white">
+                    {isLoginView ? 'Login' : 'Create an Account'}
+                </h3>
+                <form onSubmit={handleAuth} className="grid grid-cols-1 gap-4">
+                {!isLoginView && (
+                    <input
+                    type="text"
+                    placeholder="Full Name"
+                    value={fullName}
+                    onChange={(e) => setFullName(e.target.value)}
+                    className="p-3 border border-gray-500 rounded-lg bg-white/10 text-white placeholder-gray-300 focus:ring-2 focus:ring-green-500 focus:outline-none"
+                    />
+                )}
                 <input
-                  type="text"
-                  placeholder="Full Name"
-                  value={fullName}
-                  onChange={(e) => setFullName(e.target.value)}
-                  className="p-3 border border-gray-500 rounded-lg bg-white/10 text-white placeholder-gray-300 focus:ring-2 focus:ring-green-500 focus:outline-none"
+                    type="email"
+                    placeholder="Email Address"
+                    value={email}
+                    onChange={(e) => setEmail(e.target.value)}
+                    className="p-3 border border-gray-500 rounded-lg bg-white/10 text-white placeholder-gray-300 focus:ring-2 focus:ring-green-500 focus:outline-none"
                 />
-              )}
-              <input
-                type="email"
-                placeholder="Email Address"
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
-                className="p-3 border border-gray-500 rounded-lg bg-white/10 text-white placeholder-gray-300 focus:ring-2 focus:ring-green-500 focus:outline-none"
-              />
-              <input
-                type="password"
-                placeholder="Password"
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
-                className="p-3 border border-gray-500 rounded-lg bg-white/10 text-white placeholder-gray-300 focus:ring-2 focus:ring-green-500 focus:outline-none"
-              />
+                <input
+                    type="password"
+                    placeholder="Password"
+                    value={password}
+                    onChange={(e) => setPassword(e.target.value)}
+                    className="p-3 border border-gray-500 rounded-lg bg-white/10 text-white placeholder-gray-300 focus:ring-2 focus:ring-green-500 focus:outline-none"
+                />
 
-              <button type="submit" className="bg-green-600 hover:bg-green-700 text-white font-bold py-3 rounded-lg mt-2">
-                {isLoginView ? 'Login' : 'Sign Up'}
-              </button>
-            </form>
+                <button type="submit" className="bg-green-600 hover:bg-green-700 text-white font-bold py-3 rounded-lg mt-2">
+                    {isLoginView ? 'Login' : 'Sign Up'}
+                </button>
+                </form>
 
-            <p className="text-gray-300 mt-4 text-sm">
-              {isLoginView ? "Don't have an account?" : "Already have an account?"}
-              <button
-                onClick={() => setIsLoginView(!isLoginView)}
-                className="ml-2 text-green-300 hover:underline bg-transparent border-none cursor-pointer"
-              >
-                {isLoginView ? 'Sign Up' : 'Login'}
-              </button>
-            </p>
+                <p className="text-gray-300 mt-4 text-sm">
+                {isLoginView ? "Don't have an account?" : "Already have an account?"}
+                <button
+                    onClick={() => setIsLoginView(!isLoginView)}
+                    className="ml-2 text-green-300 hover:underline bg-transparent border-none cursor-pointer"
+                >
+                    {isLoginView ? 'Sign Up' : 'Login'}
+                </button>
+                </p>
 
-            <button
-              onClick={onClose}
-              className="mt-4 text-gray-400 hover:text-white text-sm bg-transparent border-none cursor-pointer"
-            >
-              Cancel
-            </button>
+                <button
+                onClick={onClose}
+                className="mt-4 text-gray-400 hover:text-white text-sm bg-transparent border-none cursor-pointer"
+                >
+                Cancel
+                </button>
+            </div>
           </div>
         </div>
         <ToastContainer
