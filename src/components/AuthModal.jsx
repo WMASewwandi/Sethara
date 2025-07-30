@@ -1,4 +1,6 @@
 import React, { useState } from 'react';
+import { ToastContainer, toast } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
 import BASE_URL from '../../Base/api';
 
 const AuthModal = ({ show, onClose, onAuthSuccess }) => {
@@ -20,7 +22,7 @@ const AuthModal = ({ show, onClose, onAuthSuccess }) => {
 
     if (!isLoginView) {
       if (!isStrongPassword(password)) {
-        alert('Password must include at least one uppercase letter, one number, and one special character.');
+        toast.error('Password must include at least one uppercase letter, one number, and one special character.');
         return;
       }
       const data = {
@@ -48,20 +50,20 @@ const AuthModal = ({ show, onClose, onAuthSuccess }) => {
         .then((data) => {
           if (data.statusCode == 200) {
             setIsLoginView(true);
-            alert('Sign up successful!');
+            toast.success('Sign up successful!');
             setFullName('');
             setEmail('');
             setPassword('');
           } else {
-            alert(data.message);
+            toast.error(data.message);
           }
         })
         .catch((error) => {
-          alert(error.message || "Sign up failed. Please try again.");
+          toast.error(error.message || "Sign up failed. Please try again.");
         });
     } else {
-      if (!email && !password) {
-        alert("Please Enter username and password");
+      if (!email || !password) {
+        toast.error("Please enter email and password");
         return;
       }
       try {
@@ -82,13 +84,13 @@ const AuthModal = ({ show, onClose, onAuthSuccess }) => {
         const responseData = await response.json();
 
         if (responseData.statusCode === 200) {
-          alert("Login Successfully");
+          toast.success("Login successful");
           const token = responseData.result.accessToken;
           localStorage.setItem("token", token);
           onAuthSuccess();
         }
       } catch (error) {
-        alert(error.message);
+        toast.error(error.message || "Login failed. Please try again.");
       }
     }
   };
@@ -117,7 +119,7 @@ const AuthModal = ({ show, onClose, onAuthSuccess }) => {
           <div className="absolute inset-0 bg-black/70 backdrop-blur-sm"></div>
         </div>
 
-        <div className="relative w-full max-w-sm mx-4 rounded-lg shadow-2xl overflow-hidden border border-gray-200/20">
+        <div className="fixed inset-20 rounded-lg shadow-2xl overflow-hidden border border-gray-200/20">
           <div className="absolute inset-0">
             <video
               src="/loginc.mp4"
@@ -130,7 +132,7 @@ const AuthModal = ({ show, onClose, onAuthSuccess }) => {
             <div className="absolute inset-0 bg-black/60"></div>
           </div>
 
-          <div className="relative z-10 p-8 text-center">
+          <div className="relative z-10 p-28 text-center">
             <h3 className="text-2xl font-bold mb-6 text-white">
               {isLoginView ? 'Login' : 'Create an Account'}
             </h3>
@@ -182,6 +184,18 @@ const AuthModal = ({ show, onClose, onAuthSuccess }) => {
             </button>
           </div>
         </div>
+        <ToastContainer
+          position="top-right"
+          autoClose={4000}
+          hideProgressBar={false}
+          newestOnTop={false}
+          closeOnClick
+          rtl={false}
+          pauseOnFocusLoss
+          draggable
+          pauseOnHover
+          theme="dark"
+        />
       </div>
     </>
   );
