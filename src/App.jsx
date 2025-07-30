@@ -15,8 +15,25 @@ import './index.css';
 
 
 export default function App() {
-  const [page, setPage] = useState('home');
+  const [page, setPage] = useState(() => {
+    const hash = window.location.hash.replace('#', '');
+    return hash || 'home';
+  });
   const [showAuthModal, setShowAuthModal] = useState(false);
+  const [isLoggedIn, setIsLoggedIn] = useState(false); // 1. Add login state
+
+  // 2. Check for token on initial load
+  useEffect(() => {
+    const token = localStorage.getItem('token');
+    if (token) {
+      setIsLoggedIn(true);
+    }
+  }, []);
+
+
+  useEffect(() => {
+    window.location.hash = page;
+  }, [page]);
   
   useEffect(() => {
     const favicon = document.querySelector("link[rel~='icon']");
@@ -35,12 +52,21 @@ export default function App() {
 
   const navigateTo = (path) => {
     setPage(path);
-    window.scrollTo(0, 0); // Scroll to top on page change
+    window.scrollTo(0, 0); 
   };
-
+  
+  // 3. Update handleAuthSuccess to set login state
   const handleAuthSuccess = () => {
     setShowAuthModal(false);
+    setIsLoggedIn(true);
     navigateTo('appointment');
+  };
+
+  // 4. Create a logout handler
+  const handleLogout = () => {
+    localStorage.removeItem('token');
+    setIsLoggedIn(false);
+    navigateTo('home'); // Navigate to home page on logout
   };
 
   const renderPage = () => {
@@ -61,11 +87,11 @@ export default function App() {
         );
       case 'about':
         return <PageWrapper><AboutUs /></PageWrapper>;
-      case 'treatments': // This now correctly points to the Treatments component
+      case 'treatments':
         return <PageWrapper><Treatments /></PageWrapper>;
       case 'packages':
         return <PageWrapper><Packages onBookNowClick={() => setShowAuthModal(true)} onViewAllClick={() => navigateTo('all-packages')} /></PageWrapper>;
-        case 'all-packages': // New case
+      case 'all-packages':
         return <PageWrapper><AllPackages onBookNowClick={() => setShowAuthModal(true)} /></PageWrapper>;
       case 'gallery':
         return <PageWrapper><Gallery /></PageWrapper>;
@@ -102,11 +128,15 @@ export default function App() {
       <div className="font-sans text-gray-800 relative bg-transparent">
         <div className={`transition-filter duration-300 ${showAuthModal ? 'filter blur-sm pointer-events-none' : ''}`}>
           <div className="flex flex-col min-h-screen">
+            {/* 5. Pass new props to the Header */}
             <Header 
               navLinks={navLinks} 
               onLogoClick={() => navigateTo('home')} 
               onNavigate={navigateTo}
               currentPage={page}
+              isLoggedIn={isLoggedIn}
+              onLoginClick={() => setShowAuthModal(true)}
+              onLogout={handleLogout}
             />
             <div className="flex-grow pb-20">
               {renderPage()}
