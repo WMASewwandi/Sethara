@@ -77,8 +77,9 @@ const Footer = ({ onNavigate }) => {
                         <div>
                             <h3 className="font-bold mb-4 text-gray-700">Legal</h3>
                             <ul className="space-y-2 text-gray-700 text-xl">
-                                <li><a href="#" className="hover:text-green-600">Privacy Policy</a></li>
-                                <li><a href="#" className="hover:text-green-600">Terms of Services</a></li>
+                                <li><button onClick={() => onNavigate('privacy-policy')}  className="hover:text-green-600">Privacy Policy</button></li>
+                                <li><button onClick={() => onNavigate('refund-policy')} className="hover:text-green-600">Refund Policy</button></li>
+                                 <li><button onClick={() => onNavigate('terms')} className="hover:text-green-600">Terms & Conditions</button></li>
                             </ul>
                         </div>
                     </div>
