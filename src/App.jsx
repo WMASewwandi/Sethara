@@ -11,7 +11,10 @@ import AuthModal from './components/AuthModal';
 import Packages from './components/Packages';
 import Services from './components/Services';
 import AllPackages from './components/AllPackages';
+import PrivacyPolicy from './components/PrivacyPolicy';
+import RefundPolicy from './components/RefundPolicy'; 
 import './index.css';
+import TermsAndConditions from './components/TermsAndConditions';
 
 
 export default function App() {
@@ -97,6 +100,12 @@ export default function App() {
         return <PageWrapper><Gallery /></PageWrapper>;
       case 'contact':
         return <PageWrapper><ContactUs /></PageWrapper>;
+        case 'privacy-policy':
+        return <PageWrapper><PrivacyPolicy /></PageWrapper>;
+         case 'refund-policy':
+        return <PageWrapper><RefundPolicy /></PageWrapper>;
+        case 'terms':
+        return <PageWrapper><TermsAndConditions /></PageWrapper>;
       case 'appointment':
         return <PageWrapper><Appointment /></PageWrapper>;
       case 'profile':
