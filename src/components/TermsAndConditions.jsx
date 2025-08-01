@@ -78,9 +78,10 @@ const TermsAndConditions = () => {
                         <p className="text-lg leading-relaxed mt-4">
                             If you have any questions or concerns about these Terms and Conditions, please contact us: <br/>
                             <strong>Sethara Hela Weda Madura</strong> <br/>
-                            📞 Phone: 075 315 5777 <br/>
-                            📧 Email: [Insert official email] <br/>
-                            🌐 Website: [Insert URL]
+                            📞 Phone: 071 892 3000 <br/>
+                            📧 Email: upul.pentip@gmail.com | setharahela@gmail.com  <br/>
+                            🌐 Website: https://setharahealth.com/
+
                         </p>
                     </div>
                 </div>
