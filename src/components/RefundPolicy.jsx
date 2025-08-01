@@ -94,9 +94,10 @@ const RefundPolicy = () => {
                         <p className="text-lg leading-relaxed mt-4">
                             If you have any questions regarding your booking, cancellations, or refunds, please don’t hesitate to get in touch: <br/>
                             <strong>Sethara Hela Weda Madura</strong> <br/>
-                            📞 Phone: [Insert contact number] <br/>
-                            📧 Email: [Insert support email] <br/>
-                            🌐 Website: [Insert URL]
+                            📞 Phone: 071 892 3000 <br/>
+                            📧 Email: upul.pentip@gmail.com | setharahela@gmail.com <br/>
+                            🌐 Website: https://setharahealth.com/
+
                         </p>
                     </div>
                 </div>
