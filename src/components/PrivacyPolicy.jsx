@@ -109,10 +109,9 @@ const PrivacyPolicy = () => {
                             If you have any questions or concerns about this Privacy Policy or how we handle your personal data, please contact: <br/>
                             <strong>Sethara Hela Weda Madura</strong> <br/>
                             No 506/7, Jaya Mawatha, Thalahena, Malabe, Sri Lanka <br/>
-                            📞 Phone: 071 892 3000 <br/>
-                            📧 Email: upul.pentip@gmail.com | setharahela@gmail.com  <br/>
-                            🌐 Website: https://setharahealth.com/
-
+                            📞 Phone: 075 315 5777 <br/>
+                            📧 Email: contact@sethara.com <br/>
+                            🌐 Website: [Insert website URL]
                         </p>
                     </div>
                 </div>
