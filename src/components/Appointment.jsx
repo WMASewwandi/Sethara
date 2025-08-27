@@ -1,5 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import BASE_URL from '../../Base/api';
+import { ToastContainer, toast } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
 
 const Appointment = () => {
   const [step, setStep] = useState(1);
@@ -82,7 +84,10 @@ const Appointment = () => {
     })
       .then((response) => response.json())
       .then((data) => {
-        alert(data.message);
+        toast.success(data.message);
+        setTimeout(() => {
+          location.reload();
+        }, 1500);
       })
       .catch((error) => {
         // toast.error(error.message || "");
@@ -100,6 +105,7 @@ const Appointment = () => {
 
   return (
     <>
+      <ToastContainer />
       <style>{`
         @import url('https://fonts.googleapis.com/css2?family=My+Soul&display=swap');
         @keyframes slowZoom { from { transform: scale(1); } to { transform: scale(1.1); } }
@@ -228,7 +234,7 @@ const Appointment = () => {
                     </div>
                   )}
                   <div className="bg-yellow-200/20 border-l-4 border-yellow-500 text-yellow-200 p-4 rounded-md"><h4 className="font-bold">Special Notes</h4><p>All payments are to be made upon arrival at the spa unless paying by card now.</p></div>
-                  <button onClick={handleConfirmBooking} className="w-full bg-green-600 text-white font-bold py-4 rounded-md hover:bg-green-700 transition-colors text-lg">Confirm & Download PDF</button>
+                  <button onClick={handleConfirmBooking} className="w-full bg-green-600 text-white font-bold py-4 rounded-md hover:bg-green-700 transition-colors text-lg">Confirm Booking</button>
                   <button onClick={() => setStep(1)} className="w-full bg-gray-600 text-white font-bold py-2 rounded-md hover:bg-gray-700 transition-colors text-sm">Back to Form</button>
                 </div>
               )}
