@@ -29,7 +29,7 @@ const slides = [
  
 ];
 
-const Hero = ({ onAppointmentClick }) => {
+const Hero = ({ onBookNowClick }) => {
   const [currentSlide, setCurrentSlide] = useState(0);
 
   useEffect(() => {
@@ -91,7 +91,7 @@ const Hero = ({ onAppointmentClick }) => {
             {slides[currentSlide].subtitle}
           </p>
           <button 
-            onClick={onAppointmentClick}
+            onClick={onBookNowClick}
             className="mt-8 border-2 border-green-300 text-white font-bold py-3 px-10 rounded-full text-lg uppercase tracking-widest
                        transition-all duration-300 hover:bg-white hover:text-gray-800 focus:outline-none focus:ring-2 focus:ring-white"
           >

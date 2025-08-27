@@ -1,5 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import BASE_URL from '../../Base/api';
+import { ToastContainer, toast } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
+import jsPDF from 'jspdf'; // Using the same library
 
 const Appointment = () => {
   const [step, setStep] = useState(1);
@@ -45,6 +48,115 @@ const Appointment = () => {
         : [...prev, pkg]
     );
   };
+  
+  // New Function: Modern PDF design
+  const generatePDF = () => {
+    const doc = new jsPDF();
+
+    // Style constants
+    const PRIMARY_COLOR = '#065f46'; // Dark Green from your theme (bg-green-900)
+    const LIGHT_GRAY_COLOR = '#f3f4f6'; // Light Gray for table rows
+    const TEXT_COLOR = '#1f2937';
+    const HEADER_TEXT_COLOR = '#ffffff';
+    const PAGE_MARGIN = 15;
+    const PAGE_WIDTH = doc.internal.pageSize.getWidth();
+    let y = 0; // Y-position tracker
+
+    // --- PDF HEADER ---
+    doc.setFillColor(PRIMARY_COLOR);
+    doc.rect(0, 0, PAGE_WIDTH, 35, 'F');
+    doc.setFont('helvetica', 'bold');
+    doc.setFontSize(20);
+    doc.setTextColor(HEADER_TEXT_COLOR);
+    doc.text('Sethara Booking Confirmation', PAGE_WIDTH / 2, 22, { align: 'center' });
+
+    // --- CUSTOMER & BOOKING DETAILS (Two-column layout) ---
+    y = 55;
+    doc.setFont('helvetica', 'bold');
+    doc.setFontSize(12);
+    doc.setTextColor(PRIMARY_COLOR);
+    
+    // Left Column
+    doc.text('BILLED TO', PAGE_MARGIN, y);
+    doc.setFont('helvetica', 'normal');
+    doc.setFontSize(11);
+    doc.setTextColor(TEXT_COLOR);
+    doc.text(formData.name, PAGE_MARGIN, y + 7);
+    doc.text(formData.email, PAGE_MARGIN, y + 14);
+    doc.text(formData.phone, PAGE_MARGIN, y + 21);
+
+    // Right Column
+    doc.setFont('helvetica', 'bold');
+    doc.setFontSize(12);
+    doc.setTextColor(PRIMARY_COLOR);
+    const rightColX = 110;
+    doc.text('BOOKING DETAILS', rightColX, y);
+    doc.setFont('helvetica', 'normal');
+    doc.setFontSize(11);
+    doc.setTextColor(TEXT_COLOR);
+    const GUEST_COUNT = bookingType === 'group' ? `${groupMembers} Members` : '1 Person';
+    doc.text(`Date: ${selectedDate}`, rightColX, y + 7);
+    doc.text(`Time: ${selectedSlot.startTime} - ${selectedSlot.endTime}`, rightColX, y + 14);
+    doc.text(`Guests: ${GUEST_COUNT}`, rightColX, y + 21);
+    
+    y += 40; // Move y-position down
+
+    // --- SELECTED PACKAGES TABLE ---
+    doc.setFont('helvetica', 'bold');
+    doc.setFontSize(12);
+    doc.setTextColor(PRIMARY_COLOR);
+    doc.text('YOUR SELECTED SERVICES', PAGE_MARGIN, y);
+    y += 8;
+
+    // Table Header
+    doc.setFillColor(LIGHT_GRAY_COLOR);
+    doc.rect(PAGE_MARGIN, y, PAGE_WIDTH - (PAGE_MARGIN * 2), 10, 'F'); // Header background
+    doc.setFont('helvetica', 'bold');
+    doc.setTextColor(TEXT_COLOR);
+    doc.text('SERVICE / PACKAGE NAME', PAGE_MARGIN + 5, y + 7);
+    y += 10;
+    
+    // Table Body
+    doc.setFont('helvetica', 'normal');
+    selectedPackages.forEach((pkg, index) => {
+        // Zebra striping for readability
+        if (index % 2 !== 0) {
+            doc.setFillColor(LIGHT_GRAY_COLOR);
+            doc.rect(PAGE_MARGIN, y, PAGE_WIDTH - (PAGE_MARGIN * 2), 10, 'F');
+        }
+        doc.text(pkg.packageName, PAGE_MARGIN + 5, y + 7);
+        y += 10;
+    });
+    const tableHeight = 10 + (selectedPackages.length * 10);
+    doc.setDrawColor('#cccccc'); // Light border for table
+    doc.rect(PAGE_MARGIN, y - tableHeight, PAGE_WIDTH - (PAGE_MARGIN * 2), tableHeight);
+    
+    y += 15; // Space after table
+
+    // --- PAYMENT METHOD ---
+    const PAYMENT_TYPE = paymentMethod === 'card' ? "Paid via Credit/Debit Card" : "To be Paid on Arrival";
+    doc.setFont('helvetica', 'bold');
+    doc.setFontSize(12);
+    doc.setTextColor(PRIMARY_COLOR);
+    doc.text('PAYMENT METHOD', PAGE_MARGIN, y);
+    doc.setFont('helvetica', 'normal');
+    doc.setFontSize(11);
+    doc.setTextColor(TEXT_COLOR);
+    doc.text(PAYMENT_TYPE, PAGE_MARGIN, y + 7);
+
+    // --- PDF FOOTER ---
+    const footerY = doc.internal.pageSize.getHeight() - 25;
+    doc.setFillColor(PRIMARY_COLOR);
+    doc.rect(0, footerY, PAGE_WIDTH, 25, 'F');
+    doc.setFont('helvetica', 'normal');
+    doc.setFontSize(10);
+    doc.setTextColor(HEADER_TEXT_COLOR);
+    const footerText = 'Thank you for your reservation! We look forward to welcoming you.';
+    doc.text(footerText, PAGE_WIDTH / 2, footerY + 15, { align: 'center' });
+
+    // --- SAVE THE DOCUMENT ---
+    doc.save(`Sethara_Booking_Confirmation_${formData.name.replace(/\s/g, '_')}.pdf`);
+  };
 
   const handleConfirmBooking = (e) => {
     e.preventDefault();
@@ -82,7 +194,13 @@ const Appointment = () => {
     })
       .then((response) => response.json())
       .then((data) => {
-        alert(data.message);
+        toast.success(data.message);
+        
+        generatePDF();
+
+        setTimeout(() => {
+          location.reload();
+        }, 1500);
       })
       .catch((error) => {
         // toast.error(error.message || "");
@@ -99,6 +217,7 @@ const Appointment = () => {
   }
 
   return (
+    // The rest of your JSX remains exactly the same
     <>
       <style>{`
         @import url('https://fonts.googleapis.com/css2?family=My+Soul&display=swap');
@@ -169,14 +288,9 @@ const Appointment = () => {
                     <div>
                       <label className="text-gray-400 text-sm mb-2 block">Choose a time slot</label>
                       <div className="grid grid-cols-3 sm:grid-cols-4 gap-2">
-                        {/* {slots.map((slot, index) => (
-                          <button key={index} type="button" disabled={!slot.isAvailable} onClick={() => handleSetSlotId(slot.id)} className={`p-2 rounded text-sm ${slotId === slot.id ? 'bg-green-500 text-white' : 'bg-gray-800 text-white hover:bg-green-700'} ${!slot.isAvailable ? 'bg-gray-700 text-gray-500 cursor-not-allowed' : 'bg-gray-800 hover:bg-green-700'}`}>{slot.startTime} - {slot.endTime}</button>
-                        ))} */}
-
                         {slots.map((slot, index) => {
                           const isSelected = slotId === slot.id;
                           const isAvailable = slot.isAvailable;
-
                           return (
                             <button
                               key={index}
@@ -184,16 +298,13 @@ const Appointment = () => {
                               disabled={!isAvailable}
                               onClick={() => isAvailable && handleSetSlotId(slot.id, slot)}
                               className={`p-2 rounded text-sm transition-colors duration-200 
-        ${isSelected ? 'bg-green-500 text-white' : ''} 
-        ${!isAvailable ? 'bg-gray-700 text-gray-500 cursor-not-allowed' : !isSelected ? 'bg-gray-800 text-white hover:bg-green-700' : ''}
-      `}
+                                ${isSelected ? 'bg-green-500 text-white' : ''} 
+                                ${!isAvailable ? 'bg-gray-700 text-gray-500 cursor-not-allowed' : !isSelected ? 'bg-gray-800 text-white hover:bg-green-700' : ''}`}
                             >
                               {slot.startTime} - {slot.endTime}
                             </button>
                           );
                         })}
-
-
                       </div>
                     </div>
                   )}
@@ -206,7 +317,7 @@ const Appointment = () => {
                 <div className="space-y-6">
                   <div><h3 className="font-bold text-xl border-b border-gray-600 pb-2 mb-2">Booking Details</h3>
                     <p><strong>Date:</strong> {selectedDate}</p>
-                    <p><strong>Time:</strong> {selectedSlot ? selectedSlot.startTime : ""}</p>
+                    <p><strong>Time:</strong> {selectedSlot ? `${selectedSlot.startTime} - ${selectedSlot.endTime}` : ""}</p>
                     <p><strong>Guests:</strong> {bookingType === 'group' ? `${groupMembers} members` : '1 person'}</p>
                   </div>
                   <div><h3 className="font-bold text-xl border-b border-gray-600 pb-2 mb-2">Selected Packages</h3>

@@ -15,7 +15,9 @@ import PrivacyPolicy from './components/PrivacyPolicy';
 import RefundPolicy from './components/RefundPolicy'; 
 import './index.css';
 import TermsAndConditions from './components/TermsAndConditions';
-
+import UserProfile from './components/UserProfile';
+import { toast } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
 
 export default function App() {
   const [page, setPage] = useState(() => {
@@ -23,16 +25,14 @@ export default function App() {
     return hash || 'home';
   });
   const [showAuthModal, setShowAuthModal] = useState(false);
-  const [isLoggedIn, setIsLoggedIn] = useState(false); // 1. Add login state
+  const [isLoggedIn, setIsLoggedIn] = useState(false);
 
-  // 2. Check for token on initial load
   useEffect(() => {
     const token = localStorage.getItem('token');
     if (token) {
       setIsLoggedIn(true);
     }
   }, []);
-
 
   useEffect(() => {
     window.location.hash = page;
@@ -58,18 +58,26 @@ export default function App() {
     window.scrollTo(0, 0); 
   };
   
-  // 3. Update handleAuthSuccess to set login state
   const handleAuthSuccess = () => {
     setShowAuthModal(false);
     setIsLoggedIn(true);
     navigateTo('appointment');
   };
 
-  // 4. Create a logout handler
   const handleLogout = () => {
+    toast.success("Logged out successfully!");
     localStorage.removeItem('token');
     setIsLoggedIn(false);
-    navigateTo('home'); // Navigate to home page on logout
+    navigateTo('home');
+  };
+
+ 
+  const handleBookNowClick = () => {
+    if (isLoggedIn) {
+      navigateTo('appointment'); // If logged in, go to the appointment page
+    } else {
+      setShowAuthModal(true); // If not, show the login modal
+    }
   };
 
   const renderPage = () => {
@@ -79,12 +87,14 @@ export default function App() {
       case 'home':
         return (
           <>
-            <Hero onAppointmentClick={() => setShowAuthModal(true)} />
+           
+            <Hero onBookNowClick={handleBookNowClick} />
             <Welcome />
             <Treatments />
             <AboutUs />
             <Services />
-            <Packages onBookNowClick={() => setShowAuthModal(true)} onViewAllClick={() => navigateTo('all-packages')} />
+            
+            <Packages onBookNowClick={handleBookNowClick} onViewAllClick={() => navigateTo('all-packages')} />
             <ContactUs />
           </>
         );
@@ -93,18 +103,22 @@ export default function App() {
       case 'treatments':
         return <PageWrapper><Treatments /></PageWrapper>;
       case 'packages':
-        return <PageWrapper><Packages onBookNowClick={() => setShowAuthModal(true)} onViewAllClick={() => navigateTo('all-packages')} /></PageWrapper>;
+        
+        return <PageWrapper><Packages onBookNowClick={handleBookNowClick} onViewAllClick={() => navigateTo('all-packages')} /></PageWrapper>;
       case 'all-packages':
-        return <PageWrapper><AllPackages onBookNowClick={() => setShowAuthModal(true)} /></PageWrapper>;
+      
+        return <PageWrapper><AllPackages onBookNowClick={handleBookNowClick} /></PageWrapper>;
       case 'gallery':
-        return <PageWrapper><Gallery /></PageWrapper>;
+        // Note: Gallery component was not provided, ensure it exists or remove this case
+        // return <PageWrapper><Gallery /></PageWrapper>;
+        return null; // Returning null until Gallery component is available
       case 'contact':
         return <PageWrapper><ContactUs /></PageWrapper>;
-        case 'privacy-policy':
+      case 'privacy-policy':
         return <PageWrapper><PrivacyPolicy /></PageWrapper>;
-         case 'refund-policy':
+      case 'refund-policy':
         return <PageWrapper><RefundPolicy /></PageWrapper>;
-        case 'terms':
+      case 'terms':
         return <PageWrapper><TermsAndConditions /></PageWrapper>;
       case 'appointment':
         return <PageWrapper><Appointment /></PageWrapper>;
@@ -113,12 +127,13 @@ export default function App() {
       default:
         return (
           <>
-            <Hero onAppointmentClick={() => setShowAuthModal(true)} />
+           
+            <Hero onBookNowClick={handleBookNowClick} />
             <Welcome />
             <Treatments />
             <AboutUs />
             <Services />
-            <Packages onBookNowClick={() => setShowAuthModal(true)} onViewAllClick={() => navigateTo('all-packages')} />
+            <Packages onBookNowClick={handleBookNowClick} onViewAllClick={() => navigateTo('all-packages')} />
             <ContactUs />
           </>
         );
@@ -127,17 +142,10 @@ export default function App() {
 
   return (
     <>
-      <style>
-        {`
-          body {
-            background-color: #F9FAFB;
-          }
-        `}
-      </style>
+      <style>{` body { background-color: #F9FAFB; } `}</style>
       <div className="font-sans text-gray-800 relative bg-transparent">
         <div className={`transition-filter duration-300 ${showAuthModal ? 'filter blur-sm pointer-events-none' : ''}`}>
           <div className="flex flex-col min-h-screen">
-            {/* 5. Pass new props to the Header */}
             <Header 
               navLinks={navLinks} 
               onLogoClick={() => navigateTo('home')} 
