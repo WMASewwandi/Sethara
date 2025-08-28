@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { ToastContainer, toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import BASE_URL from '../../Base/api';
@@ -15,6 +15,7 @@ const AuthModal = ({ show, onClose, onAuthSuccess }) => {
   const [password, setPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
+  
 
   if (!show) return null;
 
@@ -22,6 +23,8 @@ const AuthModal = ({ show, onClose, onAuthSuccess }) => {
     const regex = /^(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{6,}$/;
     return regex.test(pwd);
   };
+
+  
 
   const handleAuth = async (e) => {
     e.preventDefault();
