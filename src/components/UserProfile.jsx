@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import BASE_URL from '../../Base/api';
+import jsPDF from 'jspdf'; // Import jsPDF for PDF generation
 import { toast } from 'react-toastify';
 
 const UserProfile = () => {
@@ -48,12 +49,10 @@ const UserProfile = () => {
       }
 
       const data = await response.json();
-      // Assuming your API returns booking data in `data.result`
       setBookings(data.result || []);
     } catch (err) {
       setError(err.message || 'An error occurred while fetching your bookings.');
     } finally {
-      alert();
       setLoading(false);
     }
   };
@@ -65,7 +64,6 @@ const UserProfile = () => {
     }
   }, [customerId]);
 
-  // Helper function to convert booking status ID to readable text
   const getStatusText = (status) => {
     switch (status) {
       case 1: return { text: 'Confirmed', style: 'bg-blue-500 text-white' };
@@ -75,15 +73,109 @@ const UserProfile = () => {
     }
   };
 
+  // New Function: Generates a PDF for a specific booking
+  const generateBookingPDF = (booking) => {
+    const doc = new jsPDF();
+
+    // Style constants
+    const PRIMARY_COLOR = '#065f46';
+    const LIGHT_GRAY_COLOR = '#f3f4f6';
+    const TEXT_COLOR = '#1f2937';
+    const HEADER_TEXT_COLOR = '#ffffff';
+    const PAGE_MARGIN = 15;
+    const PAGE_WIDTH = doc.internal.pageSize.getWidth();
+    let y = 0;
+
+    // --- PDF HEADER ---
+    doc.setFillColor(PRIMARY_COLOR);
+    doc.rect(0, 0, PAGE_WIDTH, 35, 'F');
+    doc.setFont('helvetica', 'bold');
+    doc.setFontSize(20);
+    doc.setTextColor(HEADER_TEXT_COLOR);
+    doc.text('Sethara Booking Details', PAGE_WIDTH / 2, 22, { align: 'center' });
+
+    // --- CUSTOMER & BOOKING DETAILS ---
+    y = 55;
+    doc.setFont('helvetica', 'bold');
+    doc.setFontSize(12);
+    doc.setTextColor(PRIMARY_COLOR);
+
+    // Assumes these fields are available in the booking object from the API
+    doc.text('CUSTOMER DETAILS', PAGE_MARGIN, y);
+    doc.setFont('helvetica', 'normal');
+    doc.setFontSize(11);
+    doc.setTextColor(TEXT_COLOR);
+    doc.text(booking.customerName || 'N/A', PAGE_MARGIN, y + 7);
+    // doc.text(booking.email || 'N/A', PAGE_MARGIN, y + 14);
+    // doc.text(booking.phoneNumber || 'N/A', PAGE_MARGIN, y + 21);
+
+    const rightColX = 110;
+    doc.setFont('helvetica', 'bold');
+    doc.setFontSize(12);
+    doc.setTextColor(PRIMARY_COLOR);
+    doc.text('BOOKING DETAILS', rightColX, y);
+    doc.setFont('helvetica', 'normal');
+    doc.setFontSize(11);
+    doc.setTextColor(TEXT_COLOR);
+    const bookingStatus = getStatusText(booking.bookingStatus).text;
+    doc.text(`Booking ID: ${booking.documentNo}`, rightColX, y + 7);
+    doc.text(`Date: ${new Date(booking.date).toLocaleDateString('en-GB')}`, rightColX, y + 14);
+    doc.text(`Time: ${booking.slotStartTime} - ${booking.slotEndTime}`, rightColX, y + 21);
+    doc.text(`Status: ${bookingStatus}`, rightColX, y + 28);
+
+    y += 45;
+
+    // --- SELECTED PACKAGES TABLE ---
+    doc.setFont('helvetica', 'bold');
+    doc.setFontSize(12);
+    doc.setTextColor(PRIMARY_COLOR);
+    doc.text('YOUR SELECTED SERVICES', PAGE_MARGIN, y);
+    y += 8;
+
+    doc.setFillColor(LIGHT_GRAY_COLOR);
+    doc.rect(PAGE_MARGIN, y, PAGE_WIDTH - (PAGE_MARGIN * 2), 10, 'F');
+    doc.setFont('helvetica', 'bold');
+    doc.setTextColor(TEXT_COLOR);
+    doc.text('SERVICE / PACKAGE NAME', PAGE_MARGIN + 5, y + 7);
+    y += 10;
+
+    doc.setFont('helvetica', 'normal');
+    booking.packagesList?.forEach((pkg, index) => {
+      if (index % 2 !== 0) {
+        doc.setFillColor(LIGHT_GRAY_COLOR);
+        doc.rect(PAGE_MARGIN, y, PAGE_WIDTH - (PAGE_MARGIN * 2), 10, 'F');
+      }
+      doc.text(pkg.packageName || `Package ID: ${pkg.Id}`, PAGE_MARGIN + 5, y + 7);
+      y += 10;
+    });
+    const tableHeight = 10 + (booking.packagesList.length * 10);
+    doc.setDrawColor('#cccccc');
+    doc.rect(PAGE_MARGIN, y - tableHeight, PAGE_WIDTH - (PAGE_MARGIN * 2), tableHeight);
+
+    y += 15;
+
+    // --- PDF FOOTER ---
+    const footerY = doc.internal.pageSize.getHeight() - 25;
+    doc.setFillColor(PRIMARY_COLOR);
+    doc.rect(0, footerY, PAGE_WIDTH, 25, 'F');
+    doc.setFont('helvetica', 'normal');
+    doc.setFontSize(10);
+    doc.setTextColor(HEADER_TEXT_COLOR);
+    const footerText = 'Thank you for choosing Sethara. We look forward to seeing you again.';
+    doc.text(footerText, PAGE_WIDTH / 2, footerY + 15, { align: 'center' });
+
+    // --- SAVE THE DOCUMENT ---
+    doc.save(`Sethara_Booking_${booking.documentNo}.pdf`);
+  };
+
   return (
     <>
-      {/* Reusing the same styles and animations from Appointment.jsx */}
       <style>{`
         @import url('https://fonts.googleapis.com/css2?family=My+Soul&display=swap');
         @keyframes slowZoom { from { transform: scale(1); } to { transform: scale(1.1); } }
         .animate-slow-zoom { animation: slowZoom 15s infinite alternate ease-in-out; }
       `}</style>
-      <section className="relative py-20 px-4 bg-gray-100 min-h-screen">
+      <section className="relative py-20 px-4 bg-gray-100 min-h-screen overflow-hidden">
         <div className="absolute inset-0 bg-cover bg-center animate-slow-zoom z-0 opacity-20" style={{ backgroundImage: "url('/appointment-bg.webp')" }}></div>
         <div className="absolute top-0 left-0 w-full h-1/3 bg-gradient-to-b from-gray-100 to-transparent z-10"></div>
         <div className="absolute bottom-0 left-0 w-full h-1/3 bg-gradient-to-t from-gray-100 to-transparent z-10"></div>
@@ -128,6 +220,15 @@ const UserProfile = () => {
                             ))}
                           </ul>
                         </div>
+                      </div>
+                      {/* Download Button Section */}
+                      <div className="border-t border-gray-700 mt-4 pt-4 flex justify-end">
+                        <button
+                          onClick={() => generateBookingPDF(booking)}
+                          className="bg-green-600 text-white font-semibold py-2 px-4 rounded-md hover:bg-green-700 transition-colors text-sm"
+                        >
+                          Download Details
+                        </button>
                       </div>
                     </div>
                   ))}
