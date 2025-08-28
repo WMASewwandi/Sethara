@@ -28,9 +28,10 @@ const AuthModal = ({ show, onClose, onAuthSuccess }) => {
 
   const handleAuth = async (e) => {
     e.preventDefault();
-    setIsLoading(true);
+    
 
     try {
+      setIsLoading(true);
       if (!isLoginView) { // --- Sign Up Logic ---
         if (!isStrongPassword(password)) {
           throw new Error('Password must include an uppercase letter, a number, and a special character.');

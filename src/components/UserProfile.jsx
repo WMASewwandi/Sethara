@@ -4,7 +4,7 @@ import { toast } from 'react-toastify';
 
 const UserProfile = () => {
   const [bookings, setBookings] = useState([]);
-  const [loading, setLoading] = useState(true);
+  const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
   const [customerId, setCustomerId] = useState(null);
 
@@ -32,6 +32,7 @@ const UserProfile = () => {
     }
 
     try {
+      setLoading(true);
       // IMPORTANT: You will need to create and use an actual API endpoint
       // that returns bookings for the currently authenticated user.
       const response = await fetch(`${BASE_URL}/Booking/GetAllBookingDetailsByCustomerId?customerId=${customerId}`, {
@@ -52,6 +53,7 @@ const UserProfile = () => {
     } catch (err) {
       setError(err.message || 'An error occurred while fetching your bookings.');
     } finally {
+      alert();
       setLoading(false);
     }
   };
