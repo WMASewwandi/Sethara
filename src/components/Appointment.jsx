@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import BASE_URL from '../../Base/api';
 import { ToastContainer, toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
-import jsPDF from 'jspdf'; // Using the same library
+import jsPDF from 'jspdf';
 
 const Appointment = () => {
   const [step, setStep] = useState(1);
@@ -16,6 +16,10 @@ const Appointment = () => {
   const [paymentMethod, setPaymentMethod] = useState('cash');
   const [packages, setPackages] = useState([]);
   const [slots, setSlots] = useState([]);
+  
+  // State for PDF Preview Modal
+  const [showPdfModal, setShowPdfModal] = useState(false);
+  const [pdfPreviewUrl, setPdfPreviewUrl] = useState('');
 
   useEffect(() => {
     const fetchPackages = async () => {
@@ -49,18 +53,18 @@ const Appointment = () => {
     );
   };
   
-  // New Function: Modern PDF design
-  const generatePDF = () => {
+  // Modified Function: Generates PDF and opens it in a preview modal
+  const generateAndPreviewPDF = () => {
     const doc = new jsPDF();
 
     // Style constants
-    const PRIMARY_COLOR = '#065f46'; // Dark Green from your theme (bg-green-900)
-    const LIGHT_GRAY_COLOR = '#f3f4f6'; // Light Gray for table rows
+    const PRIMARY_COLOR = '#065f46';
+    const LIGHT_GRAY_COLOR = '#f3f4f6';
     const TEXT_COLOR = '#1f2937';
     const HEADER_TEXT_COLOR = '#ffffff';
     const PAGE_MARGIN = 15;
     const PAGE_WIDTH = doc.internal.pageSize.getWidth();
-    let y = 0; // Y-position tracker
+    let y = 0;
 
     // --- PDF HEADER ---
     doc.setFillColor(PRIMARY_COLOR);
@@ -70,13 +74,12 @@ const Appointment = () => {
     doc.setTextColor(HEADER_TEXT_COLOR);
     doc.text('Sethara Booking Confirmation', PAGE_WIDTH / 2, 22, { align: 'center' });
 
-    // --- CUSTOMER & BOOKING DETAILS (Two-column layout) ---
+    // --- CUSTOMER & BOOKING DETAILS ---
     y = 55;
     doc.setFont('helvetica', 'bold');
     doc.setFontSize(12);
     doc.setTextColor(PRIMARY_COLOR);
     
-    // Left Column
     doc.text('BILLED TO', PAGE_MARGIN, y);
     doc.setFont('helvetica', 'normal');
     doc.setFontSize(11);
@@ -85,7 +88,6 @@ const Appointment = () => {
     doc.text(formData.email, PAGE_MARGIN, y + 14);
     doc.text(formData.phone, PAGE_MARGIN, y + 21);
 
-    // Right Column
     doc.setFont('helvetica', 'bold');
     doc.setFontSize(12);
     doc.setTextColor(PRIMARY_COLOR);
@@ -99,7 +101,7 @@ const Appointment = () => {
     doc.text(`Time: ${selectedSlot.startTime} - ${selectedSlot.endTime}`, rightColX, y + 14);
     doc.text(`Guests: ${GUEST_COUNT}`, rightColX, y + 21);
     
-    y += 40; // Move y-position down
+    y += 40;
 
     // --- SELECTED PACKAGES TABLE ---
     doc.setFont('helvetica', 'bold');
@@ -108,18 +110,15 @@ const Appointment = () => {
     doc.text('YOUR SELECTED SERVICES', PAGE_MARGIN, y);
     y += 8;
 
-    // Table Header
     doc.setFillColor(LIGHT_GRAY_COLOR);
-    doc.rect(PAGE_MARGIN, y, PAGE_WIDTH - (PAGE_MARGIN * 2), 10, 'F'); // Header background
+    doc.rect(PAGE_MARGIN, y, PAGE_WIDTH - (PAGE_MARGIN * 2), 10, 'F');
     doc.setFont('helvetica', 'bold');
     doc.setTextColor(TEXT_COLOR);
     doc.text('SERVICE / PACKAGE NAME', PAGE_MARGIN + 5, y + 7);
     y += 10;
     
-    // Table Body
     doc.setFont('helvetica', 'normal');
     selectedPackages.forEach((pkg, index) => {
-        // Zebra striping for readability
         if (index % 2 !== 0) {
             doc.setFillColor(LIGHT_GRAY_COLOR);
             doc.rect(PAGE_MARGIN, y, PAGE_WIDTH - (PAGE_MARGIN * 2), 10, 'F');
@@ -128,10 +127,10 @@ const Appointment = () => {
         y += 10;
     });
     const tableHeight = 10 + (selectedPackages.length * 10);
-    doc.setDrawColor('#cccccc'); // Light border for table
+    doc.setDrawColor('#cccccc');
     doc.rect(PAGE_MARGIN, y - tableHeight, PAGE_WIDTH - (PAGE_MARGIN * 2), tableHeight);
     
-    y += 15; // Space after table
+    y += 15;
 
     // --- PAYMENT METHOD ---
     const PAYMENT_TYPE = paymentMethod === 'card' ? "Paid via Credit/Debit Card" : "To be Paid on Arrival";
@@ -154,8 +153,10 @@ const Appointment = () => {
     const footerText = 'Thank you for your reservation! We look forward to welcoming you.';
     doc.text(footerText, PAGE_WIDTH / 2, footerY + 15, { align: 'center' });
 
-    // --- SAVE THE DOCUMENT ---
-    doc.save(`Sethara_Booking_Confirmation_${formData.name.replace(/\s/g, '_')}.pdf`);
+    // --- GENERATE FOR PREVIEW ---
+    const pdfDataUri = doc.output('datauristring');
+    setPdfPreviewUrl(pdfDataUri);
+    setShowPdfModal(true);
   };
 
   const handleConfirmBooking = (e) => {
@@ -195,12 +196,7 @@ const Appointment = () => {
       .then((response) => response.json())
       .then((data) => {
         toast.success(data.message);
-        
-        generatePDF();
-
-        setTimeout(() => {
-          location.reload();
-        }, 1500);
+        generateAndPreviewPDF(); // Generate PDF and show preview modal
       })
       .catch((error) => {
         // toast.error(error.message || "");
@@ -217,7 +213,6 @@ const Appointment = () => {
   }
 
   return (
-    // The rest of your JSX remains exactly the same
     <>
       <style>{`
         @import url('https://fonts.googleapis.com/css2?family=My+Soul&display=swap');
@@ -229,6 +224,7 @@ const Appointment = () => {
         .animate-spin-slow { animation: spin-slow ease-in-out infinite; }
       `}</style>
       <section className="relative py-20 px-4 bg-gray-100 overflow-hidden">
+        {/* The rest of your existing JSX for the form and background */}
         <div className="absolute inset-0 bg-cover bg-center animate-slow-zoom z-0 opacity-20" style={{ backgroundImage: "url('/appointment-bg.webp')" }}></div>
         <div className="absolute top-0 left-0 w-full h-1/3 bg-gradient-to-b from-gray-100 to-transparent z-10"></div>
         <div className="absolute bottom-0 left-0 w-full h-1/3 bg-gradient-to-t from-gray-100 to-transparent z-10"></div>
@@ -339,7 +335,7 @@ const Appointment = () => {
                     </div>
                   )}
                   <div className="bg-yellow-200/20 border-l-4 border-yellow-500 text-yellow-200 p-4 rounded-md"><h4 className="font-bold">Special Notes</h4><p>All payments are to be made upon arrival at the spa unless paying by card now.</p></div>
-                  <button onClick={handleConfirmBooking} className="w-full bg-green-600 text-white font-bold py-4 rounded-md hover:bg-green-700 transition-colors text-lg">Confirm & Download PDF</button>
+                  <button onClick={handleConfirmBooking} className="w-full bg-green-600 text-white font-bold py-4 rounded-md hover:bg-green-700 transition-colors text-lg">Confirm Appointment</button>
                   <button onClick={() => setStep(1)} className="w-full bg-gray-600 text-white font-bold py-2 rounded-md hover:bg-gray-700 transition-colors text-sm">Back to Form</button>
                 </div>
               )}
@@ -351,6 +347,39 @@ const Appointment = () => {
           </div>
         </div>
       </section>
+
+      {/* PDF Preview Modal */}
+      {showPdfModal && (
+        <div className="fixed inset-0 bg-black bg-opacity-75 flex justify-center items-center z-50 p-4">
+          <div className="bg-white rounded-lg shadow-xl w-full max-w-4xl h-[90vh] flex flex-col">
+            <div className="p-4 border-b flex justify-between items-center bg-gray-50 rounded-t-lg">
+              <h3 className="text-xl font-bold text-gray-800">Booking Confirmation Preview</h3>
+              <button 
+                onClick={() => {
+                  setShowPdfModal(false);
+                  location.reload();
+                }} 
+                className="text-gray-500 hover:text-gray-800 text-3xl font-light"
+                aria-label="Close modal"
+              >
+                &times;
+              </button>
+            </div>
+            <div className="flex-grow p-4">
+              <iframe src={pdfPreviewUrl} className="w-full h-full border-none" title="PDF Preview"></iframe>
+            </div>
+            <div className="p-4 border-t bg-gray-50 flex justify-end rounded-b-lg">
+              <a 
+                href={pdfPreviewUrl} 
+                download={`Sethara_Booking_Confirmation_${formData.name.replace(/\s/g, '_')}.pdf`}
+                className="bg-green-600 text-white font-bold py-2 px-6 rounded-md hover:bg-green-700 transition-colors"
+              >
+                Download PDF
+              </a>
+            </div>
+          </div>
+        </div>
+      )}
     </>
   );
 };
