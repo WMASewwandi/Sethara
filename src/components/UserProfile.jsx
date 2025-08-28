@@ -32,13 +32,6 @@ const UserProfile = () => {
       return;
     }
 
-      try {
-        const response = await fetch(`${BASE_URL}/Booking/GetBookingsByCustomer`, {
-          headers: {
-            'Authorization': `Bearer ${token}`,
-            'Content-Type': 'application/json',
-          },
-        });
     try {
       setLoading(true);
       // IMPORTANT: You will need to create and use an actual API endpoint
@@ -55,21 +48,11 @@ const UserProfile = () => {
         throw new Error(errorData.message || 'Failed to fetch bookings.');
       }
 
-        const data = await response.json();
-        setBookings(data.result || []);
-      } catch (err) {
-        setError(err.message || 'An error occurred while fetching your bookings.');
-      } finally {
-        setLoading(false);
-      }
-    };
       const data = await response.json();
-      // Assuming your API returns booking data in `data.result`
       setBookings(data.result || []);
     } catch (err) {
       setError(err.message || 'An error occurred while fetching your bookings.');
     } finally {
-      alert();
       setLoading(false);
     }
   };
@@ -116,15 +99,15 @@ const UserProfile = () => {
     doc.setFont('helvetica', 'bold');
     doc.setFontSize(12);
     doc.setTextColor(PRIMARY_COLOR);
-    
+
     // Assumes these fields are available in the booking object from the API
     doc.text('CUSTOMER DETAILS', PAGE_MARGIN, y);
     doc.setFont('helvetica', 'normal');
     doc.setFontSize(11);
     doc.setTextColor(TEXT_COLOR);
     doc.text(booking.customerName || 'N/A', PAGE_MARGIN, y + 7);
-    doc.text(booking.email || 'N/A', PAGE_MARGIN, y + 14);
-    doc.text(booking.phoneNumber || 'N/A', PAGE_MARGIN, y + 21);
+    // doc.text(booking.email || 'N/A', PAGE_MARGIN, y + 14);
+    // doc.text(booking.phoneNumber || 'N/A', PAGE_MARGIN, y + 21);
 
     const rightColX = 110;
     doc.setFont('helvetica', 'bold');
@@ -139,7 +122,7 @@ const UserProfile = () => {
     doc.text(`Date: ${new Date(booking.date).toLocaleDateString('en-GB')}`, rightColX, y + 14);
     doc.text(`Time: ${booking.slotStartTime} - ${booking.slotEndTime}`, rightColX, y + 21);
     doc.text(`Status: ${bookingStatus}`, rightColX, y + 28);
-    
+
     y += 45;
 
     // --- SELECTED PACKAGES TABLE ---
@@ -155,20 +138,20 @@ const UserProfile = () => {
     doc.setTextColor(TEXT_COLOR);
     doc.text('SERVICE / PACKAGE NAME', PAGE_MARGIN + 5, y + 7);
     y += 10;
-    
+
     doc.setFont('helvetica', 'normal');
-    booking.reservedPackages?.forEach((pkg, index) => {
-        if (index % 2 !== 0) {
-            doc.setFillColor(LIGHT_GRAY_COLOR);
-            doc.rect(PAGE_MARGIN, y, PAGE_WIDTH - (PAGE_MARGIN * 2), 10, 'F');
-        }
-        doc.text(pkg.packageName || `Package ID: ${pkg.packageId}`, PAGE_MARGIN + 5, y + 7);
-        y += 10;
+    booking.packagesList?.forEach((pkg, index) => {
+      if (index % 2 !== 0) {
+        doc.setFillColor(LIGHT_GRAY_COLOR);
+        doc.rect(PAGE_MARGIN, y, PAGE_WIDTH - (PAGE_MARGIN * 2), 10, 'F');
+      }
+      doc.text(pkg.packageName || `Package ID: ${pkg.Id}`, PAGE_MARGIN + 5, y + 7);
+      y += 10;
     });
-    const tableHeight = 10 + (booking.reservedPackages.length * 10);
+    const tableHeight = 10 + (booking.packagesList.length * 10);
     doc.setDrawColor('#cccccc');
     doc.rect(PAGE_MARGIN, y - tableHeight, PAGE_WIDTH - (PAGE_MARGIN * 2), tableHeight);
-    
+
     y += 15;
 
     // --- PDF FOOTER ---
