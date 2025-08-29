@@ -23,13 +23,10 @@ const AuthModal = ({ show, onClose, onAuthSuccess }) => {
     return regex.test(pwd);
   };
 
-  // ✅ 1. NEW FUNCTION TO HANDLE VIEW TOGGLE AND RESET FORM
   const handleViewToggle = () => {
-    // Reset all form fields
     setFullName('');
     setEmail('');
     setPassword('');
-    // Toggle the view
     setIsLoginView(!isLoginView);
   };
 
@@ -90,20 +87,22 @@ const AuthModal = ({ show, onClose, onAuthSuccess }) => {
       }
     } catch (error) {
       toast.error(error.message);
-      setIsLoading(false); // Make sure loading stops on error
+      setIsLoading(false); 
     } 
-    // Removed the finally block to manage loading state within the try/catch
   };
 
   return (
     <>
       <style>{`@keyframes slowZoom { from { transform: scale(1); } to { transform: scale(1.1); } } .animate-slow-zoom { animation: slowZoom 20s infinite alternate ease-in-out; }`}</style>
       <div className="fixed inset-0 flex justify-center items-center z-40 p-4">
-        {/* ... (rest of the JSX is the same) ... */}
         <div className="absolute inset-0"><img src="/login.webp" alt="Main background" className="absolute inset-0 w-full h-full object-cover animate-slow-zoom" /><div className="absolute inset-0 bg-black/70 backdrop-blur-sm"></div></div>
-        <div className="relative w-full max-w-md aspect-square rounded-lg shadow-2xl overflow-hidden border border-gray-200/20">
+        
+        {/* ✅ CHANGE 1: Removed 'aspect-square' to allow height to be auto */}
+        <div className="relative w-full max-w-md rounded-lg shadow-2xl overflow-hidden border border-gray-200/20">
           <div className="absolute inset-0"><video autoPlay loop muted playsInline className="absolute inset-0 w-full h-full object-cover" /><div className="absolute inset-0 bg-black/60"></div></div>
-          <div className="relative z-10 p-8 md:p-12 text-center flex flex-col justify-start md:justify-center h-full overflow-y-auto">
+          
+          {/* ✅ CHANGE 2: Removed sizing, overflow, and flex classes. Padding is sufficient for layout. */}
+          <div className="relative z-10 p-8 md:p-12 text-center">
             <div>
                 <h3 className="text-2xl font-bold mb-6 text-white">{isLoginView ? 'Login' : 'Create an Account'}</h3>
                 <form onSubmit={handleAuth} className="grid grid-cols-1 gap-4">
@@ -119,7 +118,6 @@ const AuthModal = ({ show, onClose, onAuthSuccess }) => {
                   {isLoading ? (<><SpinnerIcon />{isLoginView ? 'Logging In...' : 'Signing Up...'}</>) : (isLoginView ? 'Login' : 'Sign Up')}
                 </button>
                 </form>
-                {/* ✅ 2. UPDATED BUTTON to use the new handler */}
                 <p className="text-gray-300 mt-4 text-sm">{isLoginView ? "Don't have an account?" : "Already have an account?"}
                   <button onClick={handleViewToggle} className="ml-2 text-green-300 hover:underline bg-transparent border-none cursor-pointer">
                     {isLoginView ? 'Sign Up' : 'Login'}
